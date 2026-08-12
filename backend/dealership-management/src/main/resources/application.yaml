@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: dealership-management
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:dealership}
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:adminpassword}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
