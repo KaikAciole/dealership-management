@@ -8,6 +8,8 @@ import br.com.accenture.dealership_management.application.port.out.DealershipRep
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
 import br.com.accenture.dealership_management.domain.exception.DomainBusinessException;
 import br.com.accenture.dealership_management.domain.model.Vehicle;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,13 +41,18 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
     }
 
     @Override
-    public List<Vehicle> findAll() {
-        return vehicleRepositoryPort.findAll();
+    public Page<Vehicle> findAll(final Pageable pageable) {
+        return vehicleRepositoryPort.findAll(pageable);
     }
 
     @Override
     public List<Vehicle> findByDealershipId(final UUID dealershipId) {
         return vehicleRepositoryPort.findAllByDealershipId(dealershipId);
+    }
+
+    @Override
+    public Page<Vehicle> search(final String brand, final String color, final Integer manufactureYear, final Pageable pageable) {
+        return vehicleRepositoryPort.search(brand, color, manufactureYear, pageable);
     }
 
     @Override

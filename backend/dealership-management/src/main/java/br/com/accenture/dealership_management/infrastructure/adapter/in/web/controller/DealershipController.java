@@ -1,5 +1,6 @@
 package br.com.accenture.dealership_management.infrastructure.adapter.in.web.controller;
 
+import br.com.accenture.dealership_management.application.port.in.ChangeDealershipStatusUseCase;
 import br.com.accenture.dealership_management.application.port.in.CreateDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.DeleteDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.FindDealershipUseCase;
@@ -10,6 +11,8 @@ import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.response.VehicleResponse;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.DealershipWebMapper;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.VehicleWebMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ public class DealershipController {
     private final FindDealershipUseCase findDealershipUseCase;
     private final UpdateDealershipUseCase updateDealershipUseCase;
     private final DeleteDealershipUseCase deleteDealershipUseCase;
+    private final ChangeDealershipStatusUseCase changeDealershipStatusUseCase;
     private final FindVehicleUseCase findVehicleUseCase;
     private final DealershipWebMapper mapper;
     private final VehicleWebMapper vehicleWebMapper;
@@ -34,6 +38,7 @@ public class DealershipController {
             final FindDealershipUseCase findDealershipUseCase,
             final UpdateDealershipUseCase updateDealershipUseCase,
             final DeleteDealershipUseCase deleteDealershipUseCase,
+            final ChangeDealershipStatusUseCase changeDealershipStatusUseCase,
             final FindVehicleUseCase findVehicleUseCase,
             final DealershipWebMapper mapper,
             final VehicleWebMapper vehicleWebMapper
@@ -42,6 +47,7 @@ public class DealershipController {
         this.findDealershipUseCase = findDealershipUseCase;
         this.updateDealershipUseCase = updateDealershipUseCase;
         this.deleteDealershipUseCase = deleteDealershipUseCase;
+        this.changeDealershipStatusUseCase = changeDealershipStatusUseCase;
         this.findVehicleUseCase = findVehicleUseCase;
         this.mapper = mapper;
         this.vehicleWebMapper = vehicleWebMapper;
@@ -61,12 +67,9 @@ public class DealershipController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DealershipResponse>> findAll() {
-        final var dealerships = findDealershipUseCase.findAll();
-        final var response = dealerships.stream()
-                .map(mapper::toResponse)
-                .toList();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Page<DealershipResponse>> findAll(final Pageable pageable) {
+        final var page = findDealershipUseCase.findAll(pageable);
+        return ResponseEntity.ok(page.map(mapper::toResponse));
     }
 
     @PutMapping("/{id}")
@@ -80,6 +83,12 @@ public class DealershipController {
     public ResponseEntity<Void> delete(@PathVariable final UUID id) {
         deleteDealershipUseCase.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<DealershipResponse> toggleStatus(@PathVariable final UUID id) {
+        final var dealership = changeDealershipStatusUseCase.toggleStatus(id);
+        return ResponseEntity.ok(mapper.toResponse(dealership));
     }
 
     @GetMapping("/{id}/vehicles")

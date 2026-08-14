@@ -1,5 +1,6 @@
 package br.com.accenture.dealership_management.application.service;
 
+import br.com.accenture.dealership_management.application.port.in.ChangeDealershipStatusUseCase;
 import br.com.accenture.dealership_management.application.port.in.CreateDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.DeleteDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.FindDealershipUseCase;
@@ -7,13 +8,14 @@ import br.com.accenture.dealership_management.application.port.in.UpdateDealersh
 import br.com.accenture.dealership_management.application.port.out.DealershipRepositoryPort;
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
 import br.com.accenture.dealership_management.domain.model.Dealership;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
-public class DealershipService implements CreateDealershipUseCase, FindDealershipUseCase, UpdateDealershipUseCase, DeleteDealershipUseCase {
+public class DealershipService implements CreateDealershipUseCase, FindDealershipUseCase, UpdateDealershipUseCase, DeleteDealershipUseCase, ChangeDealershipStatusUseCase {
 
     private final DealershipRepositoryPort dealershipRepositoryPort;
     private final VehicleRepositoryPort vehicleRepositoryPort;
@@ -38,8 +40,8 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     }
 
     @Override
-    public List<Dealership> findAll() {
-        return dealershipRepositoryPort.findAll();
+    public Page<Dealership> findAll(final Pageable pageable) {
+        return dealershipRepositoryPort.findAll(pageable);
     }
 
     @Override
@@ -66,5 +68,12 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
         }
 
         dealershipRepositoryPort.deleteById(id);
+    }
+
+    @Override
+    public Dealership toggleStatus(final UUID id) {
+        final var dealership = findById(id);
+        dealership.toggleActive();
+        return dealershipRepositoryPort.save(dealership);
     }
 }

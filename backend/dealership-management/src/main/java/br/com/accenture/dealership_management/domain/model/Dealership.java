@@ -51,6 +51,10 @@ public class Dealership {
         this.address = address;
     }
 
+    public void toggleActive() {
+        this.isActive = !this.isActive;
+    }
+
     public UUID getId() { return id; }
     public String getCorporateName() { return corporateName; }
     public Cnpj getCnpj() { return cnpj; }
