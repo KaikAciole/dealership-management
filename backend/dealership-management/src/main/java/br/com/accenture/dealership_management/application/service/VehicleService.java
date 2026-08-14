@@ -14,30 +14,28 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class VehicleService implements
-        CreateVehicleUseCase, FindVehicleUseCase, UpdateVehicleUseCase, DeleteVehicleUseCase {
+public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase, UpdateVehicleUseCase, DeleteVehicleUseCase {
 
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final DealershipRepositoryPort dealershipRepositoryPort;
 
-    public VehicleService(
-            final VehicleRepositoryPort vehicleRepositoryPort,
-            final DealershipRepositoryPort dealershipRepositoryPort
-    ) {
+    public VehicleService(final VehicleRepositoryPort vehicleRepositoryPort, final DealershipRepositoryPort dealershipRepositoryPort) {
         this.vehicleRepositoryPort = vehicleRepositoryPort;
         this.dealershipRepositoryPort = dealershipRepositoryPort;
     }
 
     @Override
     public Vehicle create(final Vehicle vehicle) {
-        validateDealershipExists(vehicle.getDealershipId());
+        if (!dealershipRepositoryPort.existsById(vehicle.getDealershipId())) {
+            throw new DomainBusinessException("Operação inválida: A concessionária informada não existe.");
+        }
         return vehicleRepositoryPort.save(vehicle);
     }
 
     @Override
     public Vehicle findById(final UUID id) {
         return vehicleRepositoryPort.findById(id)
-                .orElseThrow(() -> new DomainBusinessException("Veículo não encontrado. ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Veículo não encontrado."));
     }
 
     @Override
@@ -46,12 +44,18 @@ public class VehicleService implements
     }
 
     @Override
+    public List<Vehicle> findByDealershipId(final UUID dealershipId) {
+        return vehicleRepositoryPort.findAllByDealershipId(dealershipId);
+    }
+
+    @Override
     public Vehicle update(final UUID id, final Vehicle vehicleData) {
-        final Vehicle existingVehicle = findById(id);
+        final var existingVehicle = findById(id);
 
-        validateDealershipExists(vehicleData.getDealershipId());
+        if (!dealershipRepositoryPort.existsById(vehicleData.getDealershipId())) {
+            throw new DomainBusinessException("Operação inválida: A concessionária informada não existe.");
+        }
 
-        existingVehicle.transferToDealership(vehicleData.getDealershipId());
         existingVehicle.updateOptionalData(
                 vehicleData.getManufactureYear(),
                 vehicleData.getChassis(),
@@ -65,14 +69,8 @@ public class VehicleService implements
     @Override
     public void delete(final UUID id) {
         if (!vehicleRepositoryPort.existsById(id)) {
-            throw new DomainBusinessException("Não é possível deletar. Veículo não encontrado. ID: " + id);
+            throw new RuntimeException("Veículo não encontrado.");
         }
         vehicleRepositoryPort.deleteById(id);
-    }
-
-    private void validateDealershipExists(final UUID dealershipId) {
-        if (!dealershipRepositoryPort.existsById(dealershipId)) {
-            throw new DomainBusinessException("Operação inválida. Concessionária não encontrada. ID: " + dealershipId);
-        }
     }
 }

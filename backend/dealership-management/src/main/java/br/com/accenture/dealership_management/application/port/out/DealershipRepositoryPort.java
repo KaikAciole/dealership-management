@@ -11,4 +11,5 @@ public interface DealershipRepositoryPort {
     List<Dealership> findAll();
     boolean existsById(UUID id);
     boolean existsByCnpj(String cnpj);
+    void deleteById(UUID id);
 }

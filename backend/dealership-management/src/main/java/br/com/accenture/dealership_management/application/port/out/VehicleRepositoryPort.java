@@ -11,4 +11,6 @@ public interface VehicleRepositoryPort {
     List<Vehicle> findAll();
     void deleteById(UUID id);
     boolean existsById(UUID id);
+    List<Vehicle> findAllByDealershipId(UUID dealershipId);
+    boolean existsByDealershipId(UUID dealershipId);
 }
