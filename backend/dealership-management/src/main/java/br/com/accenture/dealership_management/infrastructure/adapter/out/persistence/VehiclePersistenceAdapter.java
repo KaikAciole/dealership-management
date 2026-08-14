@@ -6,6 +6,7 @@ import br.com.accenture.dealership_management.infrastructure.adapter.out.persist
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.repository.SpringDataVehicleRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,7 +34,17 @@ public class VehiclePersistenceAdapter implements VehicleRepositoryPort {
     }
 
     @Override
+    public List<Vehicle> findAll() {
+        return List.of();
+    }
+
+    @Override
     public void deleteById(final UUID id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return false;
     }
 }

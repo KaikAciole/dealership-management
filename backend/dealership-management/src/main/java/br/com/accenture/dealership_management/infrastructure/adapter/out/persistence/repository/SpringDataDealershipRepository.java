@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface SpringDataDealershipRepository extends JpaRepository<DealershipEntity, UUID> {
+    boolean existsByCnpj(String cnpj);
 }

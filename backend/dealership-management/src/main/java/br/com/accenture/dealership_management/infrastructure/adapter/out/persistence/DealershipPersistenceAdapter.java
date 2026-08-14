@@ -6,6 +6,7 @@ import br.com.accenture.dealership_management.infrastructure.adapter.out.persist
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.repository.SpringDataDealershipRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,5 +31,22 @@ public class DealershipPersistenceAdapter implements DealershipRepositoryPort {
     @Override
     public Optional<Dealership> findById(final UUID id) {
         return repository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Dealership> findAll() {
+        return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsById(final UUID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
+    public boolean existsByCnpj(final String cnpj) {
+        return repository.existsByCnpj(cnpj);
     }
 }
