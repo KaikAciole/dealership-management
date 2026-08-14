@@ -49,4 +49,9 @@ public class DealershipPersistenceAdapter implements DealershipRepositoryPort {
     public boolean existsByCnpj(final String cnpj) {
         return repository.existsByCnpj(cnpj);
     }
+
+    @Override
+    public void deleteById(final UUID id) {
+        repository.deleteById(id);
+    }
 }

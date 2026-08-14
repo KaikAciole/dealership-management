@@ -35,7 +35,9 @@ public class VehiclePersistenceAdapter implements VehicleRepositoryPort {
 
     @Override
     public List<Vehicle> findAll() {
-        return List.of();
+        return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -44,7 +46,19 @@ public class VehiclePersistenceAdapter implements VehicleRepositoryPort {
     }
 
     @Override
-    public boolean existsById(UUID id) {
-        return false;
+    public boolean existsById(final UUID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
+    public List<Vehicle> findAllByDealershipId(final UUID dealershipId) {
+        return repository.findAllByDealershipId(dealershipId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsByDealershipId(final UUID dealershipId) {
+        return repository.existsByDealershipId(dealershipId);
     }
 }
