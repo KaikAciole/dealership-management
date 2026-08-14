@@ -4,9 +4,10 @@ import br.com.accenture.dealership_management.application.port.out.DealershipRep
 import br.com.accenture.dealership_management.domain.model.Dealership;
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.mapper.DealershipMapper;
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.repository.SpringDataDealershipRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,10 +35,8 @@ public class DealershipPersistenceAdapter implements DealershipRepositoryPort {
     }
 
     @Override
-    public List<Dealership> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDomain)
-                .toList();
+    public Page<Dealership> findAll(final Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toDomain);
     }
 
     @Override
@@ -48,5 +47,10 @@ public class DealershipPersistenceAdapter implements DealershipRepositoryPort {
     @Override
     public boolean existsByCnpj(final String cnpj) {
         return repository.existsByCnpj(cnpj);
+    }
+
+    @Override
+    public void deleteById(final UUID id) {
+        repository.deleteById(id);
     }
 }

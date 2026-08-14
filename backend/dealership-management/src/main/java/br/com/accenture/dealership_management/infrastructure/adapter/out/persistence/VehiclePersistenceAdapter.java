@@ -4,6 +4,8 @@ import br.com.accenture.dealership_management.application.port.out.VehicleReposi
 import br.com.accenture.dealership_management.domain.model.Vehicle;
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.mapper.VehicleMapper;
 import br.com.accenture.dealership_management.infrastructure.adapter.out.persistence.repository.SpringDataVehicleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,8 +36,8 @@ public class VehiclePersistenceAdapter implements VehicleRepositoryPort {
     }
 
     @Override
-    public List<Vehicle> findAll() {
-        return List.of();
+    public Page<Vehicle> findAll(final Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toDomain);
     }
 
     @Override
@@ -44,7 +46,24 @@ public class VehiclePersistenceAdapter implements VehicleRepositoryPort {
     }
 
     @Override
-    public boolean existsById(UUID id) {
-        return false;
+    public boolean existsById(final UUID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
+    public List<Vehicle> findAllByDealershipId(final UUID dealershipId) {
+        return repository.findAllByDealershipId(dealershipId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsByDealershipId(final UUID dealershipId) {
+        return repository.existsByDealershipId(dealershipId);
+    }
+
+    @Override
+    public Page<Vehicle> search(final String brand, final String color, final Integer manufactureYear, final Pageable pageable) {
+        return repository.findByFilters(brand, color, manufactureYear, pageable).map(mapper::toDomain);
     }
 }
