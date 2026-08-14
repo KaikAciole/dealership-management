@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class Dealership {
     private final UUID id;
-    private final String corporateName;
-    private final Cnpj cnpj;
+    private String corporateName;
+    private Cnpj cnpj;
 
     private Address address;
     private LocalDate foundationDate;
@@ -39,6 +39,16 @@ public class Dealership {
     public void enrichWithOpenCnpjData(final LocalDate foundationDate, final boolean isActive) {
         this.foundationDate = foundationDate;
         this.isActive = isActive;
+    }
+
+    public void updateData(final String corporateName, final Cnpj cnpj, final Address address) {
+        if (corporateName == null || corporateName.isBlank()) throw new DomainBusinessException("Razão social é obrigatória.");
+        if (cnpj == null) throw new DomainBusinessException("CNPJ é obrigatório.");
+        if (address == null) throw new DomainBusinessException("Endereço é obrigatório.");
+
+        this.corporateName = corporateName;
+        this.cnpj = cnpj;
+        this.address = address;
     }
 
     public UUID getId() { return id; }
