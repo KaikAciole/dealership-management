@@ -13,6 +13,7 @@ import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapp
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.VehicleWebMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public class DealershipController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DealershipResponse>> findAll(final Pageable pageable) {
+    public ResponseEntity<Page<DealershipResponse>> findAll(@PageableDefault(sort = "corporateName", direction = org.springframework.data.domain.Sort.Direction.ASC)final Pageable pageable) {
         final var page = findDealershipUseCase.findAll(pageable);
         return ResponseEntity.ok(page.map(mapper::toResponse));
     }

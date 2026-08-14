@@ -15,9 +15,9 @@ public interface SpringDataVehicleRepository extends JpaRepository<VehicleEntity
     boolean existsByDealershipId(UUID dealershipId);
 
     @Query("SELECT v FROM VehicleEntity v WHERE " +
-            "(:brand IS NULL OR LOWER(v.brand) LIKE LOWER(CONCAT('%', :brand, '%'))) AND " +
-            "(:color IS NULL OR LOWER(v.color) LIKE LOWER(CONCAT('%', :color, '%'))) AND " +
-            "(:manufactureYear IS NULL OR v.manufactureYear = :manufactureYear)")
+            "(CAST(:brand AS String) IS NULL OR LOWER(v.brand) LIKE LOWER(CONCAT('%', CAST(:brand AS String), '%'))) AND " +
+            "(CAST(:color AS String) IS NULL OR LOWER(v.color) LIKE LOWER(CONCAT('%', CAST(:color AS String), '%'))) AND " +
+            "(CAST(:manufactureYear AS Integer) IS NULL OR v.manufactureYear = :manufactureYear)")
     Page<VehicleEntity> findByFilters(
             @Param("brand") String brand,
             @Param("color") String color,

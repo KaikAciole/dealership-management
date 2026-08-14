@@ -9,6 +9,7 @@ import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.VehicleWebMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class VehicleController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<VehicleResponse>> findAll(final Pageable pageable) {
+    public ResponseEntity<Page<VehicleResponse>> findAll(@PageableDefault(sort = "brand", direction = org.springframework.data.domain.Sort.Direction.ASC) final Pageable pageable) {
         final var page = findVehicleUseCase.findAll(pageable);
         return ResponseEntity.ok(page.map(mapper::toResponse));
     }
@@ -63,7 +64,7 @@ public class VehicleController {
             @RequestParam(required = false) final String brand,
             @RequestParam(required = false) final String color,
             @RequestParam(required = false) final Integer manufactureYear,
-            final Pageable pageable
+            @PageableDefault(sort = "brand", direction = org.springframework.data.domain.Sort.Direction.ASC) final Pageable pageable
     ) {
         final var page = findVehicleUseCase.search(brand, color, manufactureYear, pageable);
         return ResponseEntity.ok(page.map(mapper::toResponse));
