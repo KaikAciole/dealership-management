@@ -1,15 +1,10 @@
 package br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.request;
 
-import java.time.LocalDate;
+import jakarta.validation.constraints.NotNull;
 
 public record DealershipRequest(
         String corporateName,
         String cnpj,
-        String cep,
-        String street,
-        String neighborhood,
-        String city,
-        String state,
-        LocalDate foundationDate,
-        boolean isActive
+        @NotNull
+        AddressRequest address
 ) {}
