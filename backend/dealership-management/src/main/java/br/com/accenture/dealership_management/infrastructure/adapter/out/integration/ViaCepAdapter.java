@@ -16,21 +16,32 @@ public class ViaCepAdapter implements AddressLookupPort {
     }
 
     @Override
-    public Address lookupByCep(final String cep) {
+    public Address lookupByCep(final String cep, final String fallbackStreet, final String fallbackNeighborhood) {
         try {
             final var response = viaCepClient.consultarCep(cep.replaceAll("\\D", ""));
             if (response.erro() != null && response.erro()) {
                 throw new DomainBusinessException("CEP não encontrado no ViaCEP.");
             }
+
+            final String logradouroTratado = (response.logradouro() == null || response.logradouro().isBlank())
+                    ? fallbackStreet
+                    : response.logradouro();
+
+            final String bairroTratado = (response.bairro() == null || response.bairro().isBlank())
+                    ? fallbackNeighborhood
+                    : response.bairro();
+
             return new Address(
                     new Cep(response.cep()),
-                    response.logradouro(),
-                    response.bairro(),
+                    logradouroTratado,
+                    bairroTratado,
                     response.localidade(),
                     response.uf()
             );
+        } catch (DomainBusinessException e) {
+            throw e;
         } catch (Exception e) {
-            throw new DomainBusinessException("Erro ao consultar o CEP informado.");
+            throw new DomainBusinessException("Erro interno ao consultar o CEP informado.");
         }
     }
 }

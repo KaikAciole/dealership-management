@@ -5,6 +5,8 @@ import br.com.accenture.dealership_management.application.port.in.CreateDealersh
 import br.com.accenture.dealership_management.application.port.in.DeleteDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.FindDealershipUseCase;
 import br.com.accenture.dealership_management.application.port.in.UpdateDealershipUseCase;
+import br.com.accenture.dealership_management.application.port.out.AddressLookupPort;
+import br.com.accenture.dealership_management.application.port.out.CompanyInfoLookupPort;
 import br.com.accenture.dealership_management.application.port.out.DealershipRepositoryPort;
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
 import br.com.accenture.dealership_management.domain.model.Dealership;
@@ -19,10 +21,19 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
 
     private final DealershipRepositoryPort dealershipRepositoryPort;
     private final VehicleRepositoryPort vehicleRepositoryPort;
+    private final AddressLookupPort addressLookupPort;
+    private final CompanyInfoLookupPort companyInfoLookupPort;
 
-    public DealershipService(final DealershipRepositoryPort dealershipRepositoryPort, final VehicleRepositoryPort vehicleRepositoryPort) {
+    public DealershipService(
+            final DealershipRepositoryPort dealershipRepositoryPort,
+            final VehicleRepositoryPort vehicleRepositoryPort,
+            final AddressLookupPort addressLookupPort,
+            final CompanyInfoLookupPort companyInfoLookupPort
+    ) {
         this.dealershipRepositoryPort = dealershipRepositoryPort;
         this.vehicleRepositoryPort = vehicleRepositoryPort;
+        this.addressLookupPort = addressLookupPort;
+        this.companyInfoLookupPort = companyInfoLookupPort;
     }
 
     @Override
@@ -30,6 +41,17 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
         if (dealershipRepositoryPort.existsByCnpj(dealership.getCnpj().value())) {
             throw new RuntimeException("Já existe uma concessionária com este CNPJ.");
         }
+
+        final var address = addressLookupPort.lookupByCep(
+                dealership.getAddress().cep().value(),
+                dealership.getAddress().street(),
+                dealership.getAddress().neighborhood()
+        );
+        dealership.updateAddress(address);
+
+        final var companyInfo = companyInfoLookupPort.lookupByCnpj(dealership.getCnpj().value());
+        dealership.enrichWithOpenCnpjData(companyInfo.foundationDate(), companyInfo.isActive());
+
         return dealershipRepositoryPort.save(dealership);
     }
 
