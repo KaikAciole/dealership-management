@@ -11,7 +11,6 @@ public class Vehicle {
     private final FuelType fuelType;
     private final String color;
 
-    // Campos mutáveis através de regras de negócio
     private Integer manufactureYear;
     private String chassis;
     private BigDecimal price;
