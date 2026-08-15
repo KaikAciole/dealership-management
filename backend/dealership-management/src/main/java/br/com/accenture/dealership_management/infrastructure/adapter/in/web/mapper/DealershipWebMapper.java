@@ -14,24 +14,22 @@ import java.util.UUID;
 public class DealershipWebMapper {
 
     public Dealership toDomain(final DealershipRequest request) {
+        final var addressRequest = request.address();
         final Cnpj cnpj = new Cnpj(request.cnpj());
         final Address address = new Address(
-                new Cep(request.cep()),
-                request.street(),
-                request.neighborhood(),
-                request.city(),
-                request.state()
+                new Cep(addressRequest.cep()),
+                addressRequest.street(),
+                addressRequest.neighborhood(),
+                addressRequest.city(),
+                addressRequest.state()
         );
 
-        final Dealership dealership = new Dealership(
-                UUID.randomUUID(), // Gera o ID na criação
+        return new Dealership(
+                UUID.randomUUID(),
                 request.corporateName(),
                 cnpj,
                 address
         );
-        dealership.enrichWithOpenCnpjData(request.foundationDate(), request.isActive());
-
-        return dealership;
     }
 
     public DealershipResponse toResponse(final Dealership domain) {
