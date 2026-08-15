@@ -5,6 +5,7 @@ import br.com.accenture.dealership_management.domain.model.Cep;
 import br.com.accenture.dealership_management.domain.model.Cnpj;
 import br.com.accenture.dealership_management.domain.model.Dealership;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.request.DealershipRequest;
+import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.response.AddressResponse;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.response.DealershipResponse;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class DealershipWebMapper {
         final Address address = new Address(
                 new Cep(addressRequest.cep()),
                 addressRequest.street(),
+                addressRequest.number(),
                 addressRequest.neighborhood(),
                 addressRequest.city(),
                 addressRequest.state()
@@ -33,15 +35,20 @@ public class DealershipWebMapper {
     }
 
     public DealershipResponse toResponse(final Dealership domain) {
+        final AddressResponse addressResponse = new AddressResponse(
+                domain.getAddress().cep().value(),
+                domain.getAddress().street(),
+                domain.getAddress().number(),
+                domain.getAddress().neighborhood(),
+                domain.getAddress().city(),
+                domain.getAddress().state()
+        );
+
         return new DealershipResponse(
                 domain.getId(),
                 domain.getCorporateName(),
                 domain.getCnpj().value(),
-                domain.getAddress().cep().value(),
-                domain.getAddress().street(),
-                domain.getAddress().neighborhood(),
-                domain.getAddress().city(),
-                domain.getAddress().state(),
+                addressResponse,
                 domain.getFoundationDate(),
                 domain.isActive()
         );
