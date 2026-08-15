@@ -99,12 +99,12 @@ public class VehicleController {
             throw new DomainBusinessException("O arquivo da imagem nao pode estar vazio.");
         }
 
-        try {
+        try (var inputStream = file.getInputStream()) {
             final var updatedVehicle = uploadVehicleImageUseCase.uploadImage(
                     id,
                     file.getOriginalFilename(),
                     file.getContentType(),
-                    file.getInputStream()
+                    inputStream
             );
             return ResponseEntity.ok(mapper.toResponse(updatedVehicle));
         } catch (IOException ex) {
