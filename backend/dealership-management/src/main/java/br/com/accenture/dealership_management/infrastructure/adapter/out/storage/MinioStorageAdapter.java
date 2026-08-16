@@ -43,7 +43,11 @@ public class MinioStorageAdapter implements ImageStoragePort {
             s3Client.putObject(request, RequestBody.fromBytes(data));
             return buildPublicUrl(fileName);
         } catch (IOException | S3Exception ex) {
-            throw new DomainBusinessException("Falha ao fazer upload da imagem do veículo.");
+            // Isso vai cuspir o erro real e gigantesco em vermelho no seu console
+            ex.printStackTrace();
+
+            // Vamos devolver o motivo real no JSON do Swagger também
+            throw new DomainBusinessException("Falha ao fazer upload da imagem. Motivo: " + ex.getMessage());
         }
     }
 

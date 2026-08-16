@@ -17,6 +17,7 @@ public class DealershipMapper {
                 .cnpj(domain.getCnpj().value())
                 .cep(domain.getAddress().cep().value())
                 .street(domain.getAddress().street())
+                .number(domain.getAddress().number())
                 .neighborhood(domain.getAddress().neighborhood())
                 .city(domain.getAddress().city())
                 .state(domain.getAddress().state())
@@ -30,6 +31,7 @@ public class DealershipMapper {
         final Address address = new Address(
                 new Cep(entity.getCep()),
                 entity.getStreet(),
+                entity.getNumber(),
                 entity.getNeighborhood(),
                 entity.getCity(),
                 entity.getState()

@@ -16,7 +16,7 @@ public class ViaCepAdapter implements AddressLookupPort {
     }
 
     @Override
-    public Address lookupByCep(final String cep, final String fallbackStreet, final String fallbackNeighborhood) {
+    public Address lookupByCep(final String cep, final String fallbackStreet, final String fallbackNeighborhood, final String number) {
         try {
             final var response = viaCepClient.consultarCep(cep.replaceAll("\\D", ""));
             if (response.erro() != null && response.erro()) {
@@ -34,6 +34,7 @@ public class ViaCepAdapter implements AddressLookupPort {
             return new Address(
                     new Cep(response.cep()),
                     logradouroTratado,
+                    number,
                     bairroTratado,
                     response.localidade(),
                     response.uf()

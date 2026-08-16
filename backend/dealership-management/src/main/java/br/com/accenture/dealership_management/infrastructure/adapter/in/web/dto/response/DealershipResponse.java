@@ -7,11 +7,7 @@ public record DealershipResponse(
         UUID id,
         String corporateName,
         String cnpj,
-        String cep,
-        String street,
-        String neighborhood,
-        String city,
-        String state,
+        AddressResponse address,
         LocalDate foundationDate,
         boolean isActive
 ) {}
