@@ -1,6 +1,3 @@
-// Backend contracts aligned with Swagger
-
-// --- Addresses ---
 export interface AddressRequest {
   cep: string;
   street: string;
@@ -19,7 +16,6 @@ export interface AddressResponse {
   state: string;
 }
 
-// --- Vehicles ---
 export interface VehicleRequest {
   brand: string;
   model: string;
@@ -46,7 +42,6 @@ export interface VehicleResponse {
   dealershipId: string;
 }
 
-// --- Dealerships ---
 export interface DealershipRequest {
   corporateName: string;
   cnpj: string;
@@ -62,7 +57,6 @@ export interface DealershipResponse {
   isActive: boolean;
 }
 
-// --- Pagination ---
 export interface PageableObject {
   paged: boolean;
   pageNumber: number;

@@ -10,9 +10,11 @@ import br.com.accenture.dealership_management.application.port.out.ImageStorageP
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
 import br.com.accenture.dealership_management.domain.exception.DomainBusinessException;
 import br.com.accenture.dealership_management.domain.model.Vehicle;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
 import java.util.List;
@@ -46,7 +48,7 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
     @Override
     public Vehicle findById(final UUID id) {
         return vehicleRepositoryPort.findById(id)
-                .orElseThrow(() -> new RuntimeException("Veículo não encontrado."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veículo não encontrado."));
     }
 
     @Override
@@ -85,7 +87,7 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
     @Override
     public void delete(final UUID id) {
         if (!vehicleRepositoryPort.existsById(id)) {
-            throw new RuntimeException("Veículo não encontrado.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veículo não encontrado.");
         }
         vehicleRepositoryPort.deleteById(id);
     }
