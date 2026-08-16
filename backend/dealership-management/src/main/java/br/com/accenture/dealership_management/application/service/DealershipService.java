@@ -9,6 +9,7 @@ import br.com.accenture.dealership_management.application.port.out.AddressLookup
 import br.com.accenture.dealership_management.application.port.out.CompanyInfoLookupPort;
 import br.com.accenture.dealership_management.application.port.out.DealershipRepositoryPort;
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
+import br.com.accenture.dealership_management.domain.exception.DomainBusinessException;
 import br.com.accenture.dealership_management.domain.model.Dealership;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,7 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     @Override
     public Dealership create(final Dealership dealership) {
         if (dealershipRepositoryPort.existsByCnpj(dealership.getCnpj().value())) {
-            throw new RuntimeException("Já existe uma concessionária com este CNPJ.");
+            throw new DomainBusinessException("Já existe uma concessionária com este CNPJ.");
         }
 
         final var address = addressLookupPort.lookupByCep(
@@ -58,7 +59,7 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     @Override
     public Dealership findById(final UUID id) {
         return dealershipRepositoryPort.findById(id)
-                .orElseThrow(() -> new RuntimeException("Concessionária não encontrada."));
+                .orElseThrow(() -> new DomainBusinessException("Concessionária não encontrada."));
     }
 
     @Override
@@ -82,11 +83,11 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     @Override
     public void delete(final UUID id) {
         if (!dealershipRepositoryPort.existsById(id)) {
-            throw new RuntimeException("Concessionária não encontrada.");
+            throw new DomainBusinessException("Concessionária não encontrada.");
         }
 
         if (vehicleRepositoryPort.existsByDealershipId(id)) {
-            throw new RuntimeException("Não é possível excluir uma concessionária que possui veículos vinculados.");
+            throw new DomainBusinessException("Não é possível excluir uma concessionária que possui veículos vinculados.");
         }
 
         dealershipRepositoryPort.deleteById(id);

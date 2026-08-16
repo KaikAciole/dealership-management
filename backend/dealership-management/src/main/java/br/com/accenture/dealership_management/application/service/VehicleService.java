@@ -46,7 +46,7 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
     @Override
     public Vehicle findById(final UUID id) {
         return vehicleRepositoryPort.findById(id)
-                .orElseThrow(() -> new RuntimeException("Veículo não encontrado."));
+                .orElseThrow(() -> new DomainBusinessException("Veículo não encontrado."));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
     @Override
     public void delete(final UUID id) {
         if (!vehicleRepositoryPort.existsById(id)) {
-            throw new RuntimeException("Veículo não encontrado.");
+            throw new DomainBusinessException("Veículo não encontrado.");
         }
         vehicleRepositoryPort.deleteById(id);
     }

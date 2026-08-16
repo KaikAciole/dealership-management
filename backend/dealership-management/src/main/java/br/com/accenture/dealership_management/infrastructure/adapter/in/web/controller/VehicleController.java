@@ -9,6 +9,7 @@ import br.com.accenture.dealership_management.domain.exception.DomainBusinessExc
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.request.VehicleRequest;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.response.VehicleResponse;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.VehicleWebMapper;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -48,7 +49,7 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponse> create(@RequestBody final VehicleRequest request) {
+    public ResponseEntity<VehicleResponse> create(@Valid @RequestBody final VehicleRequest request) {
         final var domain = mapper.toDomain(request);
         final var createdVehicle = createVehicleUseCase.create(domain);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(createdVehicle));
@@ -78,7 +79,7 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VehicleResponse> update(@PathVariable final UUID id, @RequestBody final VehicleRequest request) {
+    public ResponseEntity<VehicleResponse> update(@PathVariable final UUID id, @Valid @RequestBody final VehicleRequest request) {
         final var domainData = mapper.toDomain(request);
         final var updatedVehicle = updateVehicleUseCase.update(id, domainData);
         return ResponseEntity.ok(mapper.toResponse(updatedVehicle));

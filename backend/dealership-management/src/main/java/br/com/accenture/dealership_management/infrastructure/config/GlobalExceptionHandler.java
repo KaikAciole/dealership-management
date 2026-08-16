@@ -34,4 +34,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return problemDetail;
     }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnexpectedException(final Exception ex) {
+        final ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno inesperado. Tente novamente mais tarde."
+        );
+
+        problemDetail.setTitle("Erro Interno");
+        problemDetail.setType(URI.create("https://api.dealership.com/errors/internal-error"));
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return problemDetail;
+    }
 }

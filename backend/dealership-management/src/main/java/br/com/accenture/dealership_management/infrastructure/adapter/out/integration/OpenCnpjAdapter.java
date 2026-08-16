@@ -2,12 +2,16 @@ package br.com.accenture.dealership_management.infrastructure.adapter.out.integr
 
 import br.com.accenture.dealership_management.application.port.out.CompanyInfoLookupPort;
 import br.com.accenture.dealership_management.domain.exception.DomainBusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Component
 public class OpenCnpjAdapter implements CompanyInfoLookupPort {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenCnpjAdapter.class);
 
     private final OpenCnpjClient openCnpjClient;
 
@@ -25,7 +29,7 @@ public class OpenCnpjAdapter implements CompanyInfoLookupPort {
 
             return new CompanyInfo(foundationDate, isActive);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Erro ao consultar dados na OpenCNPJ para o CNPJ informado.", e);
             throw new DomainBusinessException("Erro ao consultar informações do CNPJ na OpenCNPJ.");
         }
     }
