@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "Frontend para gestao de concessionarias e veiculos",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: import("react").ReactNode }) {
   return (
     <html
       lang="en"

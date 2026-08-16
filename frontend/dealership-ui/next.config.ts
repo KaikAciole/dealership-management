@@ -2,7 +2,14 @@ import type { NextConfig } from "next";
 
 const minioPublicUrl =
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_URL ?? "http://localhost:9000";
-const parsedMinioUrl = new URL(minioPublicUrl);
+
+let parsedMinioUrl: URL;
+try {
+  parsedMinioUrl = new URL(minioPublicUrl);
+} catch {
+  parsedMinioUrl = new URL("http://localhost:9000");
+}
+
 const protocol = parsedMinioUrl.protocol.replace(":", "") as "http" | "https";
 
 const nextConfig: NextConfig = {

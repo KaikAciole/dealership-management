@@ -101,10 +101,16 @@ export function VehicleForm({ dealerships, initialData, onSuccess }: VehicleForm
       chassis: values.chassis,
     });
 
-    const vehicle = isEditing && initialData?.id
-      ? await updateVehicleMutation.mutateAsync({ id: initialData.id, payload })
-      : await createVehicleMutation.mutateAsync(payload);
+    let vehicle: VehicleResponse;
 
+    try {
+      vehicle =
+        isEditing && initialData?.id
+          ? await updateVehicleMutation.mutateAsync({ id: initialData.id, payload })
+          : await createVehicleMutation.mutateAsync(payload);
+    } catch {
+      return;
+    }
     let vehicleWithImage = vehicle;
 
     if (selectedFile) {

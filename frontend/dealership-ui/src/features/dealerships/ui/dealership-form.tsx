@@ -147,8 +147,12 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
       return;
     }
 
-    const result = await toggleStatusMutation.mutateAsync(dealershipSnapshot.id);
-    setUpdatedDealershipSnapshot(result);
+    try {
+      const result = await toggleStatusMutation.mutateAsync(dealershipSnapshot.id);
+      setUpdatedDealershipSnapshot(result);
+    } catch {
+      // `onError` da mutation já exibe feedback.
+    }
   }
 
   const isPending =
