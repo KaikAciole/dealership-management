@@ -13,7 +13,9 @@ import br.com.accenture.dealership_management.domain.exception.DomainBusinessExc
 import br.com.accenture.dealership_management.domain.model.Dealership;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -60,7 +62,8 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     @Override
     public Dealership findById(final UUID id) {
         return dealershipRepositoryPort.findById(id)
-                .orElseThrow(() -> new DomainBusinessException("Concessionária não encontrada."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Concessionária não encontrada."));
+
     }
 
     @Override
@@ -84,7 +87,7 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
     @Override
     public void delete(final UUID id) {
         if (!dealershipRepositoryPort.existsById(id)) {
-            throw new DomainBusinessException("Concessionária não encontrada.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Concessionária não encontrada.");
         }
 
         if (vehicleRepositoryPort.existsByDealershipId(id)) {
