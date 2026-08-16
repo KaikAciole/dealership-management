@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record DealershipRequest(
-        @NotBlank(message = "Razao social e obrigatoria")
+        @NotBlank(message = "Razão social é obrigatória")
         String corporateName,
-        @NotBlank(message = "CNPJ e obrigatorio")
+        @NotBlank(message = "CNPJ é obrigatório")
         String cnpj,
         @NotNull(message = "Endereco e obrigatorio")
         @Valid

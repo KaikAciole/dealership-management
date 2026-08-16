@@ -3,11 +3,11 @@ package br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto
 import jakarta.validation.constraints.NotBlank;
 
 public record AddressRequest(
-        @NotBlank(message = "CEP e obrigatorio")
+        @NotBlank(message = "CEP é obrigatório")
         String cep,
-        @NotBlank(message = "Rua e obrigatoria")
+        @NotBlank(message = "Rua é obrigatória")
         String street,
-        @NotBlank(message = "Numero e obrigatorio")
+        @NotBlank(message = "Número é obrigatório")
         String number,
         @NotBlank(message = "Cidade e obrigatoria")
         String city,

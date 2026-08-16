@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record VehicleRequest(
-        @NotBlank(message = "Marca e obrigatoria")
+        @NotBlank(message = "Marca é obrigatória")
         String brand,
-        @NotBlank(message = "Modelo e obrigatorio")
+        @NotBlank(message = "Modelo é obrigatório")
         String model,
-        @NotBlank(message = "Tipo de combustivel e obrigatorio")
+        @NotBlank(message = "Tipo de combustível é obrigatório")
         String fuelType,
         @NotBlank(message = "Cor e obrigatoria")
         String color,

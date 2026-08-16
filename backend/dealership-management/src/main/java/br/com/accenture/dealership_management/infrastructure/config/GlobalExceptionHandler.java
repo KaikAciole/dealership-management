@@ -36,7 +36,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleUnexpectedException(final Exception ex) {
+public ProblemDetail handleUnexpectedException(final Exception ex) {
+        final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
+        logger.error("Erro interno inesperado.", ex);
+
         final ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro interno inesperado. Tente novamente mais tarde."
