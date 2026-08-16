@@ -7,6 +7,7 @@ import {
   deleteDealership,
   fetchDealerships,
   fetchDealershipById,
+  toggleDealershipStatus,
   updateDealership,
 } from "@/src/features/dealerships/api/dealerships.service";
 import { dealershipsQueryKeys } from "@/src/features/dealerships/api/dealerships.query-keys";
@@ -61,6 +62,21 @@ export function useDeleteDealership() {
     },
     onError: () => {
       toast.error("Erro ao deletar concessionária.");
+    },
+  });
+}
+
+export function useToggleDealershipStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: toggleDealershipStatus,
+    onSuccess: () => {
+      toast.success("Status da concessionaria atualizado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: dealershipsQueryKeys.all });
+    },
+    onError: () => {
+      toast.error("Nao foi possivel alterar o status da concessionaria.");
     },
   });
 }

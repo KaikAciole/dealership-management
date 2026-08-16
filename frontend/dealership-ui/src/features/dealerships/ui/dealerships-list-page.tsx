@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useDealerships } from "@/src/features/dealerships/hooks/use-dealerships";
 import { DealershipTable } from "@/src/features/dealerships/ui/dealership-table";
 import { DealershipTableSkeleton } from "@/src/features/dealerships/ui/dealership-table-skeleton";
-import { Search } from "lucide-react";
+import { EmptyState } from "@/src/shared/ui/empty-state";
+import { Building2, Search } from "lucide-react";
 
 export function DealershipsListPage() {
   const dealershipsQuery = useDealerships();
@@ -25,36 +26,61 @@ export function DealershipsListPage() {
   });
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 md:px-8">
-      <section className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Concessionarias</h1>
-          <p className="text-sm text-muted-foreground">
+    <main className="page-shell">
+      <section className="rounded-3xl border border-sky-100 bg-gradient-to-r from-slate-900 via-blue-900 to-sky-700 p-6 text-white shadow-xl shadow-blue-900/15 md:p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="section-kicker">Backoffice de unidades</p>
+            <h1 className="section-title">Concessionarias</h1>
+            <p className="section-description">
             Gerencie o cadastro e consulte os dados enriquecidos por OpenCNPJ.
           </p>
-        </div>
+          </div>
 
-        <Button asChild>
-          <Link href="/dealerships/new">Nova Concessionaria</Link>
-        </Button>
+          <Button asChild className="bg-white text-slate-900 hover:bg-slate-100">
+            <Link href="/dealerships/new">Nova Concessionaria</Link>
+          </Button>
+        </div>
       </section>
 
-      <section className="flex gap-2">
+      <section className="surface-card p-4 lift-on-hover">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
             placeholder="Buscar por razão social ou CNPJ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="h-11 border-slate-200 bg-white pl-10"
           />
         </div>
       </section>
 
       <section>
-        {dealershipsQuery.isLoading ? (
-          <DealershipTableSkeleton />
-        ) : (
+        {dealershipsQuery.isLoading && <DealershipTableSkeleton />}
+
+        {dealershipsQuery.isError && (
+          <EmptyState
+            icon={Building2}
+            title="Falha ao carregar concessionarias"
+            description="Nao foi possivel carregar a listagem agora. Tente novamente em instantes."
+            actionLabel="Recarregar"
+            onAction={() => dealershipsQuery.refetch()}
+          />
+        )}
+
+        {!dealershipsQuery.isLoading && !dealershipsQuery.isError && filteredDealerships.length === 0 && (
+          <EmptyState
+            icon={Building2}
+            title={searchTerm ? "Nenhuma concessionaria encontrada" : "Nenhuma concessionaria cadastrada"}
+            description={
+              searchTerm
+                ? "Ajuste os filtros para encontrar os registros esperados."
+                : "Comece criando a primeira concessionaria para habilitar os fluxos operacionais."
+            }
+          />
+        )}
+
+        {!dealershipsQuery.isLoading && !dealershipsQuery.isError && filteredDealerships.length > 0 && (
           <DealershipTable data={filteredDealerships} />
         )}
       </section>

@@ -24,9 +24,9 @@ export function VehicleTable({ data }: VehicleTableProps) {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur">
       <table className="w-full border-collapse text-sm">
-        <thead className="bg-muted/60 text-left">
+        <thead className="bg-slate-50 text-left">
           <tr>
             <th className="px-4 py-3 font-medium">Foto</th>
             <th className="px-4 py-3 font-medium">Marca/Modelo</th>
@@ -39,7 +39,7 @@ export function VehicleTable({ data }: VehicleTableProps) {
         </thead>
         <tbody>
           {data.map((vehicle) => (
-            <tr key={vehicle.id} className="border-t border-border">
+            <tr key={vehicle.id} className="border-t border-slate-100 hover:bg-slate-50/70">
               <td className="px-4 py-3">
                 {vehicle.imageUrl ? (
                   <Image
@@ -76,7 +76,7 @@ export function VehicleTable({ data }: VehicleTableProps) {
                     variant="ghost"
                     onClick={() => handleDelete(vehicle.id)}
                     disabled={deleteVehicleMutation.isPending}
-                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    className="h-8 w-8 text-destructive hover:bg-red-50 hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

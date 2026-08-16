@@ -36,15 +36,15 @@ const priceSchema = z.preprocess(
 
 const chassisSchema = z.preprocess(
   (value) => (typeof value === "string" ? formatChassis(value) : value),
-  z.string().min(5, "Chassi deve ter ao menos 5 caracteres").max(30, "Chassi deve ter no maximo 30 caracteres")
+  z.string().min(5, "Chassi deve ter ao menos 5 caracteres").max(17, "Chassi deve ter no maximo 17 caracteres")
 );
 
 export const vehicleSchema = z.object({
-  brand: z.string().trim().min(2, "Marca deve ter ao menos 2 caracteres"),
-  model: z.string().trim().min(1, "Modelo e obrigatorio"),
+  brand: z.string().trim().min(2, "Marca deve ter ao menos 2 caracteres").max(30, "Marca deve ter no maximo 30 caracteres"),
+  model: z.string().trim().min(1, "Modelo e obrigatorio").max(30, "Modelo deve ter no maximo 30 caracteres"),
   fuelType: fuelTypeSchema,
-  color: z.string().trim().min(2, "Cor deve ter ao menos 2 caracteres"),
-  externalColor: z.string().trim().min(2, "Cor externa deve ter ao menos 2 caracteres"),
+  color: z.string().trim().min(2, "Cor deve ter ao menos 2 caracteres").max(30, "Cor deve ter no maximo 30 caracteres"),
+  externalColor: z.string().trim().min(2, "Cor externa deve ter ao menos 2 caracteres").max(30, "Cor externa deve ter no maximo 30 caracteres"),
   manufactureYear: manufactureYearSchema,
   chassis: chassisSchema,
   price: priceSchema,

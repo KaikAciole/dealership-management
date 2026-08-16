@@ -17,7 +17,7 @@ export function normalizeDigits(value: string): string {
 }
 
 export function formatChassis(value: string): string {
-  return value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "").slice(0, 30);
+  return value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "").slice(0, 17);
 }
 
 export function parseCurrency(value: string): number | undefined {

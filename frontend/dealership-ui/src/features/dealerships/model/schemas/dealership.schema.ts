@@ -38,8 +38,20 @@ export const dealershipSchema = z.object({
   address: dealershipAddressSchema,
 });
 
-export const dealershipResponseSchema = dealershipSchema.extend({
+const dealershipAddressResponseSchema = z.object({
+  cep: z.string(),
+  street: z.string().nullable().optional(),
+  number: z.string().nullable().optional(),
+  neighborhood: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+});
+
+export const dealershipResponseSchema = z.object({
   id: z.string().uuid(),
+  corporateName: z.string(),
+  cnpj: z.string(),
+  address: dealershipAddressResponseSchema,
   foundationDate: z.string().optional().nullable(),
   isActive: z.boolean().optional().nullable(),
 });

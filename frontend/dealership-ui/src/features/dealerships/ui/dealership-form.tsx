@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -16,12 +16,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchAddressByCep } from "@/src/features/dealerships/api/viacep.service";
-import { useCreateDealership, useUpdateDealership } from "@/src/features/dealerships/hooks/use-dealerships";
+import {
+  useCreateDealership,
+  useToggleDealershipStatus,
+  useUpdateDealership,
+} from "@/src/features/dealerships/hooks/use-dealerships";
 import {
   dealershipSchema,
   type DealershipResponse,
 } from "@/src/features/dealerships/model/schemas/dealership.schema";
-import { formatCep, formatCnpj, normalizeDigits } from "@/src/shared/lib/formatters";
+import { formatCep, formatCnpj, formatDate, normalizeDigits } from "@/src/shared/lib/formatters";
+import { Badge } from "@/components/ui/badge";
 
 type DealershipFormInput = {
   corporateName: string;
@@ -64,11 +69,11 @@ function toDefaultValues(initialData?: DealershipResponse): DealershipFormInput 
     cnpj: formatCnpj(initialData.cnpj),
     address: {
       cep: formatCep(initialData.address.cep),
-      street: initialData.address.street,
-      number: initialData.address.number,
-      neighborhood: initialData.address.neighborhood,
-      city: initialData.address.city,
-      state: initialData.address.state,
+      street: initialData.address.street ?? "",
+      number: initialData.address.number ?? "",
+      neighborhood: initialData.address.neighborhood ?? "",
+      city: initialData.address.city ?? "",
+      state: initialData.address.state?.toUpperCase() ?? "",
     },
   };
 }
@@ -84,7 +89,12 @@ function FieldError({ message }: { message?: string }) {
 export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) {
   const createDealershipMutation = useCreateDealership();
   const updateDealershipMutation = useUpdateDealership();
+  const toggleStatusMutation = useToggleDealershipStatus();
   const isEditing = Boolean(initialData?.id);
+  const [updatedDealershipSnapshot, setUpdatedDealershipSnapshot] = useState<DealershipResponse | null>(
+    null
+  );
+  const dealershipSnapshot = updatedDealershipSnapshot ?? initialData;
 
   const {
     register,
@@ -127,19 +137,71 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
       ? await updateDealershipMutation.mutateAsync({ id: initialData.id, payload })
       : await createDealershipMutation.mutateAsync(payload);
 
+    setUpdatedDealershipSnapshot(result);
     toast.success(isEditing ? "Concessionaria atualizada com sucesso." : "Concessionaria cadastrada com sucesso.");
     onSuccess?.(result);
   });
 
-  const isPending = createDealershipMutation.isPending || updateDealershipMutation.isPending;
+  async function handleToggleStatus() {
+    if (!dealershipSnapshot?.id) {
+      return;
+    }
+
+    const result = await toggleStatusMutation.mutateAsync(dealershipSnapshot.id);
+    setUpdatedDealershipSnapshot(result);
+  }
+
+  const isPending =
+    createDealershipMutation.isPending ||
+    updateDealershipMutation.isPending ||
+    toggleStatusMutation.isPending;
 
   return (
-    <Card>
+    <Card className="border-slate-200 bg-white/90 shadow-lg shadow-slate-200/60 backdrop-blur">
       <CardHeader>
         <CardTitle>{isEditing ? "Editar concessionaria" : "Nova concessionaria"}</CardTitle>
         <CardDescription>
           CNPJ e CEP sao higienizados antes da validacao. O payload final sai limpo para a API.
         </CardDescription>
+
+        {isEditing && dealershipSnapshot && (
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Fundacao
+              </p>
+              <p className="text-sm font-medium">{formatDate(dealershipSnapshot.foundationDate)}</p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Status
+              </p>
+              <div>
+                {dealershipSnapshot.isActive ? (
+                  <Badge variant="success">Ativa</Badge>
+                ) : (
+                  <Badge variant="muted">Inativa</Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="ml-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleToggleStatus}
+                disabled={toggleStatusMutation.isPending}
+              >
+                {toggleStatusMutation.isPending
+                  ? "Atualizando status..."
+                  : dealershipSnapshot.isActive
+                    ? "Desativar"
+                    : "Ativar"}
+              </Button>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <form className="grid gap-4" onSubmit={onSubmit}>
@@ -216,7 +278,7 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
             </div>
           </div>
 
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" className="bg-gradient-to-r from-sky-600 to-blue-700 text-white hover:from-sky-700 hover:to-blue-800" disabled={isPending}>
             {isPending ? "Salvando..." : isEditing ? "Atualizar concessionaria" : "Cadastrar concessionaria"}
           </Button>
         </form>

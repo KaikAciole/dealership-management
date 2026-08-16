@@ -15,13 +15,18 @@ export function AppNavbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-sky-100/90 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
-        <Link href="/" className="text-sm font-semibold tracking-tight md:text-base">
-          Dealership Management
+        <Link href="/" className="flex items-center gap-2">
+          <span className="rounded-md bg-gradient-to-r from-sky-600 to-blue-700 px-2 py-1 text-xs font-semibold text-white">
+            DM
+          </span>
+          <span className="text-sm font-semibold tracking-tight text-slate-800 md:text-base">
+            Dealership Management
+          </span>
         </Link>
 
-        <nav className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
+        <nav className="flex items-center gap-1 rounded-xl border border-sky-100 bg-slate-50/90 p-1 shadow-sm">
           {navItems.map((item) => {
             const isActive =
               item.href === "/"
@@ -33,10 +38,10 @@ export function AppNavbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm transition-colors",
+                  "rounded-lg px-3 py-1.5 text-sm transition-all",
                   isActive
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-gradient-to-r from-sky-600 to-blue-700 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-white hover:text-slate-900"
                 )}
               >
                 {item.label}

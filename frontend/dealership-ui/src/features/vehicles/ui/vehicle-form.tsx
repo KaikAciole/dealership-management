@@ -132,7 +132,7 @@ export function VehicleForm({ dealerships, initialData, onSuccess }: VehicleForm
     uploadVehicleImageMutation.isPending;
 
   return (
-    <Card>
+    <Card className="border-slate-200 bg-white/90 shadow-lg shadow-slate-200/60 backdrop-blur">
       <CardHeader>
         <CardTitle>{isEditing ? "Editar veiculo" : "Novo veiculo"}</CardTitle>
         <CardDescription>
@@ -255,7 +255,11 @@ export function VehicleForm({ dealerships, initialData, onSuccess }: VehicleForm
             />
           </div>
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="bg-gradient-to-r from-sky-600 to-blue-700 text-white hover:from-sky-700 hover:to-blue-800"
+            disabled={isSubmitting}
+          >
             {isSubmitting
               ? "Salvando..."
               : isEditing

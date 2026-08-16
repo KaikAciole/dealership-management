@@ -25,6 +25,11 @@ export async function updateDealership(id: string, payload: DealershipFormValues
   return dealershipResponseSchema.parse(response.data);
 }
 
+export async function toggleDealershipStatus(id: string) {
+  const response = await api.patch(`/api/v1/dealerships/${id}/status`);
+  return dealershipResponseSchema.parse(response.data);
+}
+
 export async function deleteDealership(id: string) {
   await api.delete(`/api/v1/dealerships/${id}`);
 }
