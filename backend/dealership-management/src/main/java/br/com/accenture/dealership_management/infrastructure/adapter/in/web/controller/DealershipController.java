@@ -11,6 +11,7 @@ import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.dto.response.VehicleResponse;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.DealershipWebMapper;
 import br.com.accenture.dealership_management.infrastructure.adapter.in.web.mapper.VehicleWebMapper;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -55,7 +56,7 @@ public class DealershipController {
     }
 
     @PostMapping
-    public ResponseEntity<DealershipResponse> create(@RequestBody final DealershipRequest request) {
+    public ResponseEntity<DealershipResponse> create(@Valid @RequestBody final DealershipRequest request) {
         final var domain = mapper.toDomain(request);
         final var createdDealership = createDealershipUseCase.create(domain);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(createdDealership));
@@ -74,7 +75,7 @@ public class DealershipController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DealershipResponse> update(@PathVariable final UUID id, @RequestBody final DealershipRequest request) {
+    public ResponseEntity<DealershipResponse> update(@PathVariable final UUID id, @Valid @RequestBody final DealershipRequest request) {
         final var domainData = mapper.toDomain(request);
         final var updatedDealership = updateDealershipUseCase.update(id, domainData);
         return ResponseEntity.ok(mapper.toResponse(updatedDealership));

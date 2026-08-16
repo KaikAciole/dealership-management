@@ -46,7 +46,8 @@ public class DealershipService implements CreateDealershipUseCase, FindDealershi
         final var address = addressLookupPort.lookupByCep(
                 dealership.getAddress().cep().value(),
                 dealership.getAddress().street(),
-                dealership.getAddress().neighborhood()
+                dealership.getAddress().neighborhood(),
+                dealership.getAddress().number()
         );
         dealership.updateAddress(address);
 
