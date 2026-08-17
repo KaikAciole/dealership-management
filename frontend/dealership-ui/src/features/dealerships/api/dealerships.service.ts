@@ -5,8 +5,8 @@ import {
   type DealershipFormValues,
 } from "@/src/features/dealerships/model/schemas/dealership.schema";
 
-export async function fetchDealerships() {
-  const response = await api.get("/api/v1/dealerships");
+export async function fetchDealerships(page = 0, size = 10) {
+  const response = await api.get(`/api/v1/dealerships?page=${page}&size=${size}`);
   return pageDealershipResponseSchema.parse(response.data);
 }
 

@@ -9,13 +9,15 @@ import { useDealerships } from "@/src/features/dealerships/hooks/use-dealerships
 import { DealershipTable } from "@/src/features/dealerships/ui/dealership-table";
 import { DealershipTableSkeleton } from "@/src/features/dealerships/ui/dealership-table-skeleton";
 import { EmptyState } from "@/src/shared/ui/empty-state";
-import { Building2, Search } from "lucide-react";
+import { Building2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function DealershipsListPage() {
-  const dealershipsQuery = useDealerships();
+  const [page, setPage] = useState(0);
+  const dealershipsQuery = useDealerships(page);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const dealerships = dealershipsQuery.data?.content ?? [];
+  const pageData = dealershipsQuery.data;
+  const dealerships = pageData?.content ?? [];
 
   const filteredDealerships = dealerships.filter((dealership) => {
     const searchLower = searchTerm.toLowerCase();
@@ -33,8 +35,8 @@ export function DealershipsListPage() {
             <p className="section-kicker">Backoffice de unidades</p>
             <h1 className="section-title">Concessionarias</h1>
             <p className="section-description">
-            Gerencie o cadastro e consulte os dados enriquecidos por OpenCNPJ.
-          </p>
+              Gerencie o cadastro e consulte os dados enriquecidos por OpenCNPJ.
+            </p>
           </div>
 
           <Button asChild className="bg-white text-slate-900 hover:bg-slate-100">
@@ -55,7 +57,7 @@ export function DealershipsListPage() {
         </div>
       </section>
 
-      <section>
+      <section className="space-y-4">
         {dealershipsQuery.isLoading && <DealershipTableSkeleton />}
 
         {dealershipsQuery.isError && (
@@ -81,7 +83,34 @@ export function DealershipsListPage() {
         )}
 
         {!dealershipsQuery.isLoading && !dealershipsQuery.isError && filteredDealerships.length > 0 && (
-          <DealershipTable data={filteredDealerships} />
+          <>
+            <DealershipTable data={filteredDealerships} />
+
+            {/* Controles de Paginação */}
+            <div className="flex items-center justify-between px-2 pt-2">
+              <p className="text-sm text-slate-500">
+                Página <span className="font-medium">{page + 1}</span> de <span className="font-medium">{pageData?.totalPages || 1}</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0 || dealershipsQuery.isFetching}
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={pageData?.last || (pageData?.totalPages ? page >= pageData.totalPages - 1 : true) || dealershipsQuery.isFetching}
+                >
+                  Próxima <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
         )}
       </section>
     </main>
