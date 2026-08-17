@@ -31,7 +31,7 @@ O sistema adota uma arquitetura desacoplada de microsserviços lógicos dividida
                                                                      |
                                                        +-------------+-------------+
                                                        |                           |
-                                           [ PostgreSQL Database ]        [ MinIO Object Storage ]
+                                           [ PostgreSQL Database ]        [ MinIO Object Storage (S3) ]
 
 ```
 
