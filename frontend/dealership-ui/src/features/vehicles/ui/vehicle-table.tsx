@@ -2,24 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type VehicleResponse } from "@/src/features/vehicles/model/schemas/vehicle.schema";
 import { formatCurrency } from "@/src/shared/lib/formatters";
 import { useDeleteVehicle } from "@/src/features/vehicles/hooks/use-vehicles";
 import { Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-type VehicleTableProps = {
-  data: VehicleResponse[];
-};
+type VehicleTableProps = { data: VehicleResponse[]; };
 
 export function VehicleTable({ data }: VehicleTableProps) {
   const deleteVehicleMutation = useDeleteVehicle();
+  const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja deletar este veículo?")) {
-      deleteVehicleMutation.mutate(id);
+  const confirmDelete = () => {
+    if (vehicleToDelete) {
+      deleteVehicleMutation.mutate(vehicleToDelete);
+      setVehicleToDelete(null);
     }
   };
 
@@ -42,14 +46,7 @@ export function VehicleTable({ data }: VehicleTableProps) {
             <tr key={vehicle.id} className="border-t border-slate-100 hover:bg-slate-50/70">
               <td className="px-4 py-3">
                 {vehicle.imageUrl ? (
-                  <Image
-                    src={vehicle.imageUrl}
-                    alt={`Foto de ${vehicle.brand} ${vehicle.model}`}
-                    width={72}
-                    height={48}
-                    className="h-12 w-[72px] rounded-md object-cover"
-                    unoptimized
-                  />
+                  <Image src={vehicle.imageUrl} alt={`Foto de ${vehicle.brand} ${vehicle.model}`} width={72} height={48} className="h-12 w-[72px] rounded-md object-cover" unoptimized />
                 ) : (
                   <Badge variant="outline">Sem imagem</Badge>
                 )}
@@ -61,23 +58,10 @@ export function VehicleTable({ data }: VehicleTableProps) {
               <td className="px-4 py-3">{vehicle.externalColor ?? "-"}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    asChild
-                    className="h-8 w-8"
-                  >
-                    <Link href={`/vehicles/${vehicle.id}/edit`}>
-                      <Pencil className="h-4 w-4" />
-                    </Link>
+                  <Button size="icon" variant="ghost" asChild className="h-8 w-8" aria-label="Editar Veículo">
+                    <Link href={`/vehicles/${vehicle.id}/edit`}><Pencil className="h-4 w-4" /></Link>
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDelete(vehicle.id)}
-                    disabled={deleteVehicleMutation.isPending}
-                    className="h-8 w-8 text-destructive hover:bg-red-50 hover:text-destructive"
-                  >
+                  <Button size="icon" variant="ghost" onClick={() => setVehicleToDelete(vehicle.id)} disabled={deleteVehicleMutation.isPending} className="h-8 w-8 text-destructive hover:bg-red-50 hover:text-destructive" aria-label="Remover Veículo">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -86,6 +70,21 @@ export function VehicleTable({ data }: VehicleTableProps) {
           ))}
         </tbody>
       </table>
+
+      <AlertDialog open={!!vehicleToDelete} onOpenChange={() => setVehicleToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir veículo?</AlertDialogTitle>
+            <AlertDialogDescription>Essa ação não pode ser desfeita. Isso removerá o veículo permanentemente do estoque.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteVehicleMutation.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleteVehicleMutation.isPending ? "Excluindo..." : "Sim, excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

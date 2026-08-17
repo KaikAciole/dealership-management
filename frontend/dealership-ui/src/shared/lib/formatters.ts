@@ -22,27 +22,15 @@ export function formatChassis(value: string): string {
 
 export function parseCurrency(value: string): number | undefined {
   const digits = value.replace(/\D/g, "");
-  if (!digits) {
-    return undefined;
-  }
-
+  if (!digits) return undefined;
   return Number.parseInt(digits, 10) / 100;
 }
 
 export function formatCurrency(value: string | number | null | undefined): string {
-  if (value === undefined || value === null || value === "") {
-    return "";
-  }
-
+  if (value === undefined || value === null || value === "") return "";
   const numericValue = typeof value === "number" ? value : parseCurrency(value);
-  if (numericValue === undefined) {
-    return "";
-  }
-
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(numericValue);
+  if (numericValue === undefined) return "";
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(numericValue);
 }
 
 export function unformatCurrency(value: string): number | undefined {
@@ -50,19 +38,13 @@ export function unformatCurrency(value: string): number | undefined {
 }
 
 export function formatDate(isoDate?: string | null): string {
-  if (!isoDate) {
-    return "-";
-  }
-
+  if (!isoDate) return "-";
   const date = new Date(isoDate);
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "UTC",
   }).format(date);
 }
-

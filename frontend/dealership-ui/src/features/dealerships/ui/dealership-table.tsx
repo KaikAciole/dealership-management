@@ -5,23 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type DealershipResponse } from "@/src/features/dealerships/model/schemas/dealership.schema";
 import { formatCnpj, formatDate } from "@/src/shared/lib/formatters";
-import {
-  useDeleteDealership,
-  useToggleDealershipStatus,
-} from "@/src/features/dealerships/hooks/use-dealerships";
+import { useDeleteDealership, useToggleDealershipStatus } from "@/src/features/dealerships/hooks/use-dealerships";
 import { Pencil, Power, Trash2 } from "lucide-react";
+import { useState } from "react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-type DealershipTableProps = {
-  data: DealershipResponse[];
-};
+type DealershipTableProps = { data: DealershipResponse[]; };
 
 export function DealershipTable({ data }: DealershipTableProps) {
   const deleteDealershipMutation = useDeleteDealership();
   const toggleStatusMutation = useToggleDealershipStatus();
+  const [dealershipToDelete, setDealershipToDelete] = useState<string | null>(null);
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja deletar esta concessionária?")) {
-      deleteDealershipMutation.mutate(id);
+  const confirmDelete = () => {
+    if (dealershipToDelete) {
+      deleteDealershipMutation.mutate(dealershipToDelete);
+      setDealershipToDelete(null);
     }
   };
 
@@ -49,38 +51,16 @@ export function DealershipTable({ data }: DealershipTableProps) {
                 {dealership.isActive === false && <Badge variant="muted">Inativo</Badge>}
                 {dealership.isActive == null && <Badge variant="outline">Nao informado</Badge>}
               </td>
-              <td className="px-4 py-3">
-                {dealership.address.city} / {dealership.address.state}
-              </td>
+              <td className="px-4 py-3">{dealership.address.city} / {dealership.address.state}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    asChild
-                    className="h-8 w-8"
-                  >
-                    <Link href={`/dealerships/${dealership.id}/edit`}>
-                      <Pencil className="h-4 w-4" />
-                    </Link>
+                  <Button size="icon" variant="ghost" asChild className="h-8 w-8" aria-label="Editar concessionária">
+                    <Link href={`/dealerships/${dealership.id}/edit`}><Pencil className="h-4 w-4" /></Link>
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => toggleStatusMutation.mutate(dealership.id)}
-                    disabled={toggleStatusMutation.isPending}
-                    className="h-8 w-8 text-sky-700 hover:bg-sky-50 hover:text-sky-800"
-                    title={dealership.isActive ? "Desativar" : "Ativar"}
-                  >
+                  <Button size="icon" variant="ghost" onClick={() => toggleStatusMutation.mutate(dealership.id)} disabled={toggleStatusMutation.isPending} className="h-8 w-8 text-sky-700 hover:bg-sky-50 hover:text-sky-800" aria-label={dealership.isActive ? "Desativar concessionária" : "Ativar concessionária"}>
                     <Power className="h-4 w-4" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDelete(dealership.id)}
-                    disabled={deleteDealershipMutation.isPending}
-                    className="h-8 w-8 text-destructive hover:bg-red-50 hover:text-destructive"
-                  >
+                  <Button size="icon" variant="ghost" onClick={() => setDealershipToDelete(dealership.id)} disabled={deleteDealershipMutation.isPending} className="h-8 w-8 text-destructive hover:bg-red-50 hover:text-destructive" aria-label="Remover concessionária">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -89,6 +69,20 @@ export function DealershipTable({ data }: DealershipTableProps) {
           ))}
         </tbody>
       </table>
+      <AlertDialog open={!!dealershipToDelete} onOpenChange={() => setDealershipToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir concessionária?</AlertDialogTitle>
+            <AlertDialogDescription>Essa ação não pode ser desfeita. Isso removerá a concessionária permanentemente.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteDealershipMutation.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleteDealershipMutation.isPending ? "Excluindo..." : "Sim, excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

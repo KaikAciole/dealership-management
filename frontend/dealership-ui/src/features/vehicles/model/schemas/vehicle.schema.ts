@@ -1,36 +1,16 @@
 import { z } from "zod";
-
 import { createPageSchema } from "@/src/shared/model/page.schema";
 import { formatChassis, unformatCurrency } from "@/src/shared/lib/formatters";
 
-export const fuelTypeSchema = z.enum([
-  "GASOLINA",
-  "ETANOL",
-  "FLEX",
-  "DIESEL",
-  "ELETRICO",
-  "HIBRIDO",
-]);
+export const fuelTypeSchema = z.enum(["GASOLINA", "ETANOL", "FLEX", "DIESEL", "ELETRICO", "HIBRIDO"]);
 
 const manufactureYearSchema = z.preprocess(
-  (value) => {
-    if (typeof value === "string" && value.trim() === "") {
-      return undefined;
-    }
-
-    return value;
-  },
-  z.coerce.number().int("Ano de fabricacao invalido").min(1900, "Ano de fabricacao invalido").max(2100, "Ano de fabricacao invalido")
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : Number(value)),
+  z.number().int("Ano de fabricacao invalido").min(1900, "Ano de fabricacao invalido").max(2100, "Ano de fabricacao invalido").optional()
 );
 
 const priceSchema = z.preprocess(
-  (value) => {
-    if (typeof value === "string") {
-      return unformatCurrency(value);
-    }
-
-    return value;
-  },
+  (value) => (typeof value === "string" ? unformatCurrency(value) : value),
   z.number().positive("Preco deve ser positivo")
 );
 
@@ -60,10 +40,7 @@ export const vehicleResponseSchema = vehicleSchema.extend({
   imageUrl: z.string().url().nullable().optional(),
 });
 
-export const vehicleImageUploadResponseSchema = z.object({
-  imageUrl: z.string().url(),
-});
-
+export const vehicleImageUploadResponseSchema = z.object({ imageUrl: z.string().url() });
 export const pageVehicleResponseSchema = createPageSchema(vehicleResponseSchema);
 
 export type FuelType = z.infer<typeof fuelTypeSchema>;

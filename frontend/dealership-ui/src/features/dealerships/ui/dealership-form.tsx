@@ -6,13 +6,7 @@ import { type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchAddressByCep } from "@/src/features/dealerships/api/viacep.service";
@@ -21,24 +15,14 @@ import {
   useToggleDealershipStatus,
   useUpdateDealership,
 } from "@/src/features/dealerships/hooks/use-dealerships";
-import {
-  dealershipSchema,
-  type DealershipResponse,
-} from "@/src/features/dealerships/model/schemas/dealership.schema";
+import { dealershipSchema, type DealershipResponse } from "@/src/features/dealerships/model/schemas/dealership.schema";
 import { formatCep, formatCnpj, formatDate, normalizeDigits } from "@/src/shared/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 
 type DealershipFormInput = {
   corporateName: string;
   cnpj: string;
-  address: {
-    cep: string;
-    street: string;
-    number: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-  };
+  address: { cep: string; street: string; number: string; neighborhood: string; city: string; state: string; };
 };
 
 type DealershipFormProps = {
@@ -47,23 +31,11 @@ type DealershipFormProps = {
 };
 
 const baseDefaultValues: DealershipFormInput = {
-  corporateName: "",
-  cnpj: "",
-  address: {
-    cep: "",
-    street: "",
-    number: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-  },
+  corporateName: "", cnpj: "", address: { cep: "", street: "", number: "", neighborhood: "", city: "", state: "" },
 };
 
 function toDefaultValues(initialData?: DealershipResponse): DealershipFormInput {
-  if (!initialData) {
-    return baseDefaultValues;
-  }
-
+  if (!initialData) return baseDefaultValues;
   return {
     corporateName: initialData.corporateName,
     cnpj: formatCnpj(initialData.cnpj),
@@ -79,10 +51,7 @@ function toDefaultValues(initialData?: DealershipResponse): DealershipFormInput 
 }
 
 function FieldError({ message }: { message?: string }) {
-  if (!message) {
-    return null;
-  }
-
+  if (!message) return null;
   return <p className="text-xs text-destructive">{message}</p>;
 }
 
@@ -91,34 +60,20 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
   const updateDealershipMutation = useUpdateDealership();
   const toggleStatusMutation = useToggleDealershipStatus();
   const isEditing = Boolean(initialData?.id);
-  const [updatedDealershipSnapshot, setUpdatedDealershipSnapshot] = useState<DealershipResponse | null>(
-    null
-  );
-  const dealershipSnapshot = updatedDealershipSnapshot ?? initialData;
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    getValues,
-    reset,
-    formState: { errors },
-  } = useForm<DealershipFormInput>({
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
+  
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm<DealershipFormInput>({
     resolver: zodResolver(dealershipSchema) as unknown as Resolver<DealershipFormInput>,
     defaultValues: toDefaultValues(initialData),
   });
 
-  useEffect(() => {
-    reset(toDefaultValues(initialData));
-  }, [initialData, reset]);
+  useEffect(() => reset(toDefaultValues(initialData)), [initialData, reset]);
 
   async function handleCepBlur() {
     const cep = normalizeDigits(getValues("address.cep"));
+    if (cep.length !== 8) return;
 
-    if (cep.length !== 8) {
-      return;
-    }
-
+    setIsFetchingCep(true);
     try {
       const result = await fetchAddressByCep(cep);
       setValue("address.street", result.logradouro ?? "", { shouldValidate: true });
@@ -126,8 +81,9 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
       setValue("address.city", result.localidade ?? "", { shouldValidate: true });
       setValue("address.state", (result.uf ?? "").toUpperCase(), { shouldValidate: true });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Falha ao buscar CEP.";
-      toast.warning(message);
+      toast.warning(error instanceof Error ? error.message : "Falha ao buscar CEP.");
+    } finally {
+      setIsFetchingCep(false); 
     }
   }
 
@@ -137,71 +93,35 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
       ? await updateDealershipMutation.mutateAsync({ id: initialData.id, payload })
       : await createDealershipMutation.mutateAsync(payload);
 
-    setUpdatedDealershipSnapshot(result);
     toast.success(isEditing ? "Concessionaria atualizada com sucesso." : "Concessionaria cadastrada com sucesso.");
     onSuccess?.(result);
   });
 
   async function handleToggleStatus() {
-    if (!dealershipSnapshot?.id) {
-      return;
-    }
-
-    try {
-      const result = await toggleStatusMutation.mutateAsync(dealershipSnapshot.id);
-      setUpdatedDealershipSnapshot(result);
-    } catch {
-      // `onError` da mutation já exibe feedback.
-    }
+    if (!initialData?.id) return;
+    try { await toggleStatusMutation.mutateAsync(initialData.id); } catch {}
   }
 
-  const isPending =
-    createDealershipMutation.isPending ||
-    updateDealershipMutation.isPending ||
-    toggleStatusMutation.isPending;
+  const isPending = createDealershipMutation.isPending || updateDealershipMutation.isPending || toggleStatusMutation.isPending || isFetchingCep;
 
   return (
     <Card className="border-slate-200 bg-white/90 shadow-lg shadow-slate-200/60 backdrop-blur">
       <CardHeader>
         <CardTitle>{isEditing ? "Editar concessionaria" : "Nova concessionaria"}</CardTitle>
-        <CardDescription>
-          CNPJ e CEP sao higienizados antes da validacao. O payload final sai limpo para a API.
-        </CardDescription>
-
-        {isEditing && dealershipSnapshot && (
+        <CardDescription>CNPJ e CEP sao higienizados antes da validacao. O payload final sai limpo para a API.</CardDescription>
+        {isEditing && initialData && (
           <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Fundacao
-              </p>
-              <p className="text-sm font-medium">{formatDate(dealershipSnapshot.foundationDate)}</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Fundacao</p>
+              <p className="text-sm font-medium">{formatDate(initialData.foundationDate)}</p>
             </div>
-
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Status
-              </p>
-              <div>
-                {dealershipSnapshot.isActive ? (
-                  <Badge variant="success">Ativa</Badge>
-                ) : (
-                  <Badge variant="muted">Inativa</Badge>
-                )}
-              </div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</p>
+              <div>{initialData.isActive ? <Badge variant="success">Ativa</Badge> : <Badge variant="muted">Inativa</Badge>}</div>
             </div>
-
             <div className="ml-auto">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleToggleStatus}
-                disabled={toggleStatusMutation.isPending}
-              >
-                {toggleStatusMutation.isPending
-                  ? "Atualizando status..."
-                  : dealershipSnapshot.isActive
-                    ? "Desativar"
-                    : "Ativar"}
+              <Button type="button" variant="outline" onClick={handleToggleStatus} disabled={toggleStatusMutation.isPending}>
+                {toggleStatusMutation.isPending ? "Atualizando..." : initialData.isActive ? "Desativar" : "Ativar"}
               </Button>
             </div>
           </div>
@@ -214,74 +134,45 @@ export function DealershipForm({ initialData, onSuccess }: DealershipFormProps) 
             <Input id="corporateName" {...register("corporateName")} />
             <FieldError message={errors.corporateName?.message} />
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="cnpj">CNPJ</Label>
-            <Input
-              id="cnpj"
-              inputMode="numeric"
-              placeholder="00.000.000/0000-00"
-              {...register("cnpj", {
-                onChange: (event) => {
-                  event.target.value = formatCnpj(event.target.value);
-                },
-              })}
-            />
+            <Input id="cnpj" inputMode="numeric" placeholder="00.000.000/0000-00" {...register("cnpj", { onChange: (e) => e.target.value = formatCnpj(e.target.value) })} />
             <FieldError message={errors.cnpj?.message} />
           </div>
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="address.cep">CEP</Label>
-              <Input
-                id="address.cep"
-                inputMode="numeric"
-                placeholder="00000-000"
-                {...register("address.cep", {
-                  onBlur: async () => {
-                    await handleCepBlur();
-                  },
-                  onChange: (event) => {
-                    event.target.value = formatCep(event.target.value);
-                  },
-                })}
-              />
+              <Input id="address.cep" inputMode="numeric" placeholder="00000-000" {...register("address.cep", { onBlur: handleCepBlur, onChange: (e) => e.target.value = formatCep(e.target.value) })} />
               <FieldError message={errors.address?.cep?.message} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="address.state">UF</Label>
               <Input id="address.state" maxLength={2} {...register("address.state")} />
               <FieldError message={errors.address?.state?.message} />
             </div>
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="address.street">Rua</Label>
             <Input id="address.street" {...register("address.street")} />
             <FieldError message={errors.address?.street?.message} />
           </div>
-
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="grid gap-2">
               <Label htmlFor="address.neighborhood">Bairro</Label>
               <Input id="address.neighborhood" {...register("address.neighborhood")} />
               <FieldError message={errors.address?.neighborhood?.message} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="address.number">Numero</Label>
               <Input id="address.number" placeholder="Ex: 123" {...register("address.number")} />
               <FieldError message={errors.address?.number?.message} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="address.city">Cidade</Label>
               <Input id="address.city" {...register("address.city")} />
               <FieldError message={errors.address?.city?.message} />
             </div>
           </div>
-
           <Button type="submit" className="bg-gradient-to-r from-sky-600 to-blue-700 text-white hover:from-sky-700 hover:to-blue-800" disabled={isPending}>
             {isPending ? "Salvando..." : isEditing ? "Atualizar concessionaria" : "Cadastrar concessionaria"}
           </Button>
