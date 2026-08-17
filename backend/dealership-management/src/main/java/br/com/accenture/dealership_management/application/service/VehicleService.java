@@ -10,6 +10,7 @@ import br.com.accenture.dealership_management.application.port.out.ImageStorageP
 import br.com.accenture.dealership_management.application.port.out.VehicleRepositoryPort;
 import br.com.accenture.dealership_management.domain.exception.DomainBusinessException;
 import br.com.accenture.dealership_management.domain.model.Vehicle;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,20 +69,33 @@ public class VehicleService implements CreateVehicleUseCase, FindVehicleUseCase,
 
     @Override
     public Vehicle update(final UUID id, final Vehicle vehicleData) {
-        final var existingVehicle = findById(id);
-
         if (!dealershipRepositoryPort.existsById(vehicleData.getDealershipId())) {
             throw new DomainBusinessException("Operação inválida: A concessionária informada não existe.");
         }
 
-        existingVehicle.updateOptionalData(
+        final var existingVehicle = findById(id);
+        final Vehicle updatedVehicle = createUpdatedVehicle(vehicleData, existingVehicle);
+        updatedVehicle.assignImage(existingVehicle.getImageUrl());
+        return vehicleRepositoryPort.save(updatedVehicle);
+    }
+
+    private static @NonNull Vehicle createUpdatedVehicle(Vehicle vehicleData, Vehicle existingVehicle) {
+        final Vehicle updatedVehicle = new Vehicle(
+                existingVehicle.getId(),
+                vehicleData.getBrand(),
+                vehicleData.getModel(),
+                vehicleData.getFuelType(),
+                vehicleData.getColor(),
+                vehicleData.getDealershipId()
+        );
+
+        updatedVehicle.updateOptionalData(
                 vehicleData.getManufactureYear(),
                 vehicleData.getChassis(),
                 vehicleData.getPrice(),
                 vehicleData.getExternalColor()
         );
-
-        return vehicleRepositoryPort.save(existingVehicle);
+        return updatedVehicle;
     }
 
     @Override
