@@ -35,8 +35,8 @@ O sistema adota uma arquitetura desacoplada de microsserviços lógicos dividida
 
 ```
 
-* **Backend:** Desenvolvido em Java 21 com Spring Boot, estruturado sob os conceitos de Domain-Driven Design (DDD) e Arquitetura Hexagonal. Para aprofundar-se nos detalhes de camadas, portas, adaptadores e contratos, consulte a [Documentação do Backend na Wiki do Projeto](https://www.google.com/search?q=./backend/README.md).
-* **Frontend:** Desenvolvido em Next.js (App Router) com TypeScript, Tailwind CSS e Shadcn/UI, consumindo dados assíncronos de forma otimizada com o TanStack Query. Para detalhes de componentização e padrões visuais, consulte a [Documentação do Frontend na Wiki do Projeto](https://www.google.com/search?q=./frontend/README.md).
+* **Backend:** Desenvolvido em Java 21 com Spring Boot, estruturado sob os conceitos de Domain-Driven Design (DDD) e Arquitetura Hexagonal. Para aprofundar-se nos detalhes de camadas, portas, adaptadores e contratos, consulte a [Documentação do Backend na Wiki do Projeto]([https://www.google.com/search?q=./backend/README.md](https://github.com/KaikAciole/dealership-management/wiki/Backend-Docs)).
+* **Frontend:** Desenvolvido em Next.js (App Router) com TypeScript, Tailwind CSS e Shadcn/UI, consumindo dados assíncronos de forma otimizada com o TanStack Query. Para detalhes de componentização e padrões visuais, consulte a [Documentação do Frontend na Wiki do Projeto]([https://www.google.com/search?q=./frontend/README.md](https://github.com/KaikAciole/dealership-management/wiki/Frontend-Docs)).
 
 ---
 
@@ -127,5 +127,5 @@ npm run dev
 
 Para uma imersão técnica detalhada em cada uma das partes do sistema, acesse os guias dedicados:
 
-* 📄 **[Documentação Completa do Backend](https://www.google.com/search?q=./backend/README.md)** (Arquitetura Hexagonal, Endpoints REST, Regras de Negócio e Testes).
-* 📄 **[Documentação Completa do Frontend](https://www.google.com/search?q=./frontend/README.md)** (Feature-Sliced Design, Hooks do TanStack Query, Schemas Zod e Testes E2E com Playwright).
+* 📄 **[Documentação Completa do Backend](https://github.com/KaikAciole/dealership-management/wiki/Backend-Docs)** (Arquitetura Hexagonal, Endpoints REST, Regras de Negócio e Testes).
+* 📄 **[Documentação Completa do Frontend]([https://www.google.com/search?q=./frontend/README.md](https://github.com/KaikAciole/dealership-management/wiki/Frontend-Docs))** (Feature-Sliced Design, Hooks do TanStack Query, Schemas Zod e Testes E2E com Playwright).
