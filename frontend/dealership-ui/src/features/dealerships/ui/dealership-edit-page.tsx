@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,11 +9,11 @@ import { DealershipForm } from "@/src/features/dealerships/ui/dealership-form";
 import { DealershipTableSkeleton } from "@/src/features/dealerships/ui/dealership-table-skeleton";
 import { useDealership } from "@/src/features/dealerships/hooks/use-dealerships";
 
-type DealershipEditPageProps = {
-  id: string;
-};
+export function DealershipEditPage() {
+  const router = useRouter();
+  const params = useParams(); 
+  const id = params.id as string;
 
-export function DealershipEditPage({ id }: DealershipEditPageProps) {
   const dealershipQuery = useDealership(id);
 
   if (dealershipQuery.isLoading) {
@@ -25,7 +26,7 @@ export function DealershipEditPage({ id }: DealershipEditPageProps) {
 
   return (
     <main className="page-shell max-w-3xl">
-      <section className="rounded-3xl border border-sky-100 bg-gradient-to-r from-slate-900 via-blue-900 to-sky-700 p-6 text-white shadow-xl shadow-blue-900/15 md:p-8">
+      <section className="mb-6 rounded-3xl border border-sky-100 bg-gradient-to-r from-slate-900 via-blue-900 to-sky-700 p-6 text-white shadow-xl shadow-blue-900/15 md:p-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="section-kicker">Edicao de unidade</p>
@@ -41,7 +42,10 @@ export function DealershipEditPage({ id }: DealershipEditPageProps) {
         </div>
       </section>
 
-      <DealershipForm initialData={dealershipQuery.data} />
+      <DealershipForm 
+        initialData={dealershipQuery.data} 
+        onSuccess={() => router.push("/dealerships")} 
+      />
     </main>
   );
 }
