@@ -1,7 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   createVehicle,
   deleteVehicle,
@@ -13,10 +12,11 @@ import {
 import { vehiclesQueryKeys } from "@/src/features/vehicles/api/vehicles.query-keys";
 import { toast } from "sonner";
 
-export function useVehicles() {
+export function useVehicles(page = 0, size = 10) {
   return useQuery({
-    queryKey: vehiclesQueryKeys.all,
-    queryFn: fetchVehicles,
+    queryKey: [...vehiclesQueryKeys.all, page, size],
+    queryFn: () => fetchVehicles(page, size),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -30,7 +30,6 @@ export function useVehicle(id: string) {
 
 export function useCreateVehicle() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createVehicle,
     onSuccess: () => {
@@ -41,7 +40,6 @@ export function useCreateVehicle() {
 
 export function useUpdateVehicle() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof updateVehicle>[1] }) =>
       updateVehicle(id, payload),
@@ -53,7 +51,6 @@ export function useUpdateVehicle() {
 
 export function useUploadVehicleImage() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ vehicleId, file }: { vehicleId: string; file: File }) =>
       uploadVehicleImage(vehicleId, file),
@@ -65,7 +62,6 @@ export function useUploadVehicleImage() {
 
 export function useDeleteVehicle() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteVehicle,
     onSuccess: () => {
@@ -77,4 +73,3 @@ export function useDeleteVehicle() {
     },
   });
 }
-

@@ -9,13 +9,15 @@ import { useVehicles } from "@/src/features/vehicles/hooks/use-vehicles";
 import { VehicleTable } from "@/src/features/vehicles/ui/vehicle-table";
 import { VehicleTableSkeleton } from "@/src/features/vehicles/ui/vehicle-table-skeleton";
 import { EmptyState } from "@/src/shared/ui/empty-state";
-import { CarFront, Search } from "lucide-react";
+import { CarFront, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function VehiclesListPage() {
-  const vehiclesQuery = useVehicles();
+  const [page, setPage] = useState(0);
+  const vehiclesQuery = useVehicles(page);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const vehicles = vehiclesQuery.data?.content ?? [];
+  const pageData = vehiclesQuery.data;
+  const vehicles = pageData?.content ?? [];
 
   const filteredVehicles = vehicles.filter((vehicle) => {
     const searchLower = searchTerm.toLowerCase();
@@ -34,8 +36,8 @@ export function VehiclesListPage() {
             <p className="section-kicker">Estoque e operacao</p>
             <h1 className="section-title">Veiculos</h1>
             <p className="section-description">
-            Consulte veiculos cadastrados e imagens publicadas no MinIO.
-          </p>
+              Consulte veiculos cadastrados e imagens publicadas no MinIO.
+            </p>
           </div>
 
           <Button asChild className="bg-white text-slate-900 hover:bg-slate-100">
@@ -56,7 +58,7 @@ export function VehiclesListPage() {
         </div>
       </section>
 
-      <section>
+      <section className="space-y-4">
         {vehiclesQuery.isLoading && <VehicleTableSkeleton />}
 
         {vehiclesQuery.isError && (
@@ -82,7 +84,34 @@ export function VehiclesListPage() {
         )}
 
         {!vehiclesQuery.isLoading && !vehiclesQuery.isError && filteredVehicles.length > 0 && (
-          <VehicleTable data={filteredVehicles} />
+          <>
+            <VehicleTable data={filteredVehicles} />
+
+            {/* Controles de Paginação */}
+            <div className="flex items-center justify-between px-2 pt-2">
+              <p className="text-sm text-slate-500">
+                Página <span className="font-medium">{page + 1}</span> de <span className="font-medium">{pageData?.totalPages || 1}</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0 || vehiclesQuery.isFetching}
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={pageData?.last || (pageData?.totalPages ? page >= pageData.totalPages - 1 : true) || vehiclesQuery.isFetching}
+                >
+                  Próxima <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
         )}
       </section>
     </main>

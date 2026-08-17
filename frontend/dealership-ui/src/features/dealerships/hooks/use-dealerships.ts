@@ -1,7 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   createDealership,
   deleteDealership,
@@ -13,10 +12,11 @@ import {
 import { dealershipsQueryKeys } from "@/src/features/dealerships/api/dealerships.query-keys";
 import { toast } from "sonner";
 
-export function useDealerships() {
+export function useDealerships(page = 0, size = 10) {
   return useQuery({
-    queryKey: dealershipsQueryKeys.all,
-    queryFn: fetchDealerships,
+    queryKey: [...dealershipsQueryKeys.all, page, size],
+    queryFn: () => fetchDealerships(page, size),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -30,7 +30,6 @@ export function useDealership(id: string) {
 
 export function useCreateDealership() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createDealership,
     onSuccess: () => {
@@ -41,7 +40,6 @@ export function useCreateDealership() {
 
 export function useUpdateDealership() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof updateDealership>[1] }) =>
       updateDealership(id, payload),
@@ -53,7 +51,6 @@ export function useUpdateDealership() {
 
 export function useDeleteDealership() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteDealership,
     onSuccess: () => {
@@ -68,7 +65,6 @@ export function useDeleteDealership() {
 
 export function useToggleDealershipStatus() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: toggleDealershipStatus,
     onSuccess: () => {
@@ -80,4 +76,3 @@ export function useToggleDealershipStatus() {
     },
   });
 }
-

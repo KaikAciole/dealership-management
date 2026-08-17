@@ -5,8 +5,8 @@ import {
   vehicleResponseSchema,
 } from "@/src/features/vehicles/model/schemas/vehicle.schema";
 
-export async function fetchVehicles() {
-  const response = await api.get("/api/v1/vehicles");
+export async function fetchVehicles(page = 0, size = 10) {
+  const response = await api.get(`/api/v1/vehicles?page=${page}&size=${size}`);
   return pageVehicleResponseSchema.parse(response.data);
 }
 
