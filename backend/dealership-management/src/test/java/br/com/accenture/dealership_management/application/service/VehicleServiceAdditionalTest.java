@@ -25,6 +25,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -88,24 +89,22 @@ class VehicleServiceAdditionalTest {
         Vehicle data = vehicle(UUID.randomUUID());
         data.updateOptionalData(2024, "9BWZZZ377VT004251", java.math.BigDecimal.valueOf(120000), "Azul Metalico");
 
-        when(vehicleRepositoryPort.findById(id)).thenReturn(Optional.of(existing));
         when(dealershipRepositoryPort.existsById(data.getDealershipId())).thenReturn(true);
-        when(vehicleRepositoryPort.save(existing)).thenReturn(existing);
+        when(vehicleRepositoryPort.findById(id)).thenReturn(Optional.of(existing));
+
+        when(vehicleRepositoryPort.save(any(Vehicle.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Vehicle updated = service.update(id, data);
 
         assertEquals(2024, updated.getManufactureYear());
         assertEquals("9BWZZZ377VT004251", updated.getChassis());
-        verify(vehicleRepositoryPort).save(existing);
+        verify(vehicleRepositoryPort).save(any(Vehicle.class));
     }
 
     @Test
     void shouldFailUpdateWhenTargetDealershipDoesNotExist() {
         UUID id = UUID.randomUUID();
-        Vehicle existing = vehicle(id);
         Vehicle data = vehicle(UUID.randomUUID());
-
-        when(vehicleRepositoryPort.findById(id)).thenReturn(Optional.of(existing));
         when(dealershipRepositoryPort.existsById(data.getDealershipId())).thenReturn(false);
 
         DomainBusinessException ex = assertThrows(DomainBusinessException.class, () -> service.update(id, data));
@@ -153,12 +152,11 @@ class VehicleServiceAdditionalTest {
 
         assertEquals("http://localhost/image.jpg", updated.getImageUrl());
         String key = keyCaptor.getValue();
-        org.junit.jupiter.api.Assertions.assertTrue(key.contains("foto_final_.jpg"));
-        org.junit.jupiter.api.Assertions.assertTrue(key.startsWith("vehicles/" + id + "/"));
+        assertTrue(key.contains("foto_final_.jpg"));
+        assertTrue(key.startsWith("vehicles/" + id + "/"));
     }
 
     private Vehicle vehicle(final UUID id) {
         return new Vehicle(id, "Fiat", "Pulse", FuelType.FLEX, "Azul", UUID.randomUUID());
     }
 }
-

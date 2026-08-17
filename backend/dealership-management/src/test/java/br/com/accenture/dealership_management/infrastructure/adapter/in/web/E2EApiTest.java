@@ -8,10 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,12 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 class E2EApiTest {
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext context;
 
     @Autowired
     private SpringDataDealershipRepository dealershipRepository;
@@ -41,6 +43,8 @@ class E2EApiTest {
 
     @BeforeEach
     void setUp() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
         vehicleRepository.deleteAll();
         dealershipRepository.deleteAll();
 
@@ -106,6 +110,3 @@ class E2EApiTest {
                 .andExpect(jsonPath("$.detail").value("Veículo não encontrado."));
     }
 }
-
-
-
