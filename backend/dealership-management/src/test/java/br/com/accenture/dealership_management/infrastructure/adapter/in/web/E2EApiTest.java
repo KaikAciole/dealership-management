@@ -96,7 +96,7 @@ class E2EApiTest {
     @Test
     void shouldPreventDeletingDealershipWithLinkedVehicles() throws Exception {
         mockMvc.perform(delete("/api/v1/dealerships/{id}", dealershipId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.detail").value("Não é possível excluir uma concessionária que possui veículos vinculados."));
     }
 
